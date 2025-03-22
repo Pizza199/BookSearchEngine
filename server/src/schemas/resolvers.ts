@@ -1,6 +1,8 @@
 import  User  from '../models/User.js'; // Import Mongoose User model
 import { signToken } from '../services/auth.js'; // Import signToken function
 import { AuthenticationError } from 'apollo-server-express';
+import { BookDocument } from '../models/Book.js';
+
 
 const resolvers = {
   Query: {
@@ -50,14 +52,14 @@ const resolvers = {
     },
 
     // Save a book to a user's `savedBooks` field
-    saveBook: async (_: any, { book }: { book: any }, context: any) => {
+    saveBook: async (_: any, { authors, description, title, bookId, image, link }: BookDocument, context: any) => {
       if (!context.user) {
         throw new AuthenticationError('You need to be logged in!');
       }
 
       const updatedUser = await User.findOneAndUpdate(
         { _id: context.user._id },
-        { $addToSet: { savedBooks: book } }, // Prevent duplicates
+        { $addToSet: { savedBooks: { authors, description, title, bookId, image, link } } }, // Prevent duplicates
         { new: true, runValidators: true }
       );
 

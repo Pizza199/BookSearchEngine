@@ -6,23 +6,26 @@ import { ApolloServer } from 'apollo-server-express';
 import typeDefs from './schemas/typeDefs.js'; 
 import resolvers from './schemas/resolvers.js';
 import cors from 'cors';
+import { authenticateToken } from './services/auth.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../client/build')));
+  app.use(express.static(path.join(__dirname, '../../client/dist')));
 }
 
 async function startServer() {
 
 
 const server=new ApolloServer({
-typeDefs, resolvers //context: ({ req }) => ({ user: req.user })
+typeDefs, resolvers,
+context: authenticateToken
+//context: ({ req }) => ({ user: req.user })
   
 })
 await server.start();
